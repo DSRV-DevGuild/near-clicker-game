@@ -1,15 +1,19 @@
 import "./App.css";
 import React, { useState, useEffect } from "react";
 import { login, logout, accountBalance } from "./near/utils";
+import { useNavigate } from "react-router-dom";
 
 function App() {
   const account = window.accountId;
   const [balance, setBalance] = useState();
+  const [visible, setVisible] = useState("hidden");
+  const navigate = useNavigate();
 
   // 연결된 계정이 바뀔 때마다 getBalance 호출
   useEffect(() => {
     if (account) {
       getBalance();
+      setVisible("visible");
     }
   }, [account]);
 
@@ -17,6 +21,7 @@ function App() {
     setBalance(await accountBalance());
   };
 
+  // CONNECT, DISCONNECT 버튼 구현
   const renderBtn = () => {
     if (account) {
       return (
@@ -44,6 +49,28 @@ function App() {
     }
   };
 
+  // 지갑과 연결되어 있으면 PLAY 버튼 보여주기
+  // 버튼 클릭하면 /play 주소로 이동
+  const playGame = () => {
+    return (
+      <div className="menu">
+        <button
+          className="play-btn"
+          onClick={() => {
+            navigate("/play");
+          }}
+          style={{ visibility: visible }}
+        >
+          <span>PLAY</span>
+        </button>
+        {!account && <p>Click the Button and Connect Wallet</p>}
+        {account && (
+          <p>Click as many NEAR Icon as you can within 15 seconds!</p>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="App">
       <header>
@@ -58,7 +85,10 @@ function App() {
         </div>
       </header>
       <div className="App-container">
-        <div className="connect-wallet">{renderBtn()}</div>
+        <div className="App-menu-container">
+          {playGame()}
+          <div className="connect-wallet">{renderBtn()}</div>
+        </div>
         {showWalletInfo()}
       </div>
     </div>
