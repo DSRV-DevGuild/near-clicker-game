@@ -1,9 +1,21 @@
 import "./App.css";
-import React from "react";
-import { login, logout } from "./near/utils";
+import React, { useState, useEffect } from "react";
+import { login, logout, accountBalance } from "./near/utils";
 
 function App() {
   const account = window.accountId;
+  const [balance, setBalance] = useState();
+
+  // 연결된 계정이 바뀔 때마다 getBalance 호출
+  useEffect(() => {
+    if (account) {
+      getBalance();
+    }
+  }, [account]);
+
+  const getBalance = async () => {
+    setBalance(await accountBalance());
+  };
 
   const renderBtn = () => {
     if (account) {
@@ -18,6 +30,18 @@ function App() {
         CONNECT WALLET
       </button>
     );
+  };
+
+  // 지갑과 연결되어 있으면 account와 balance 정보 출력
+  const showWalletInfo = () => {
+    if (account) {
+      return (
+        <div className="wallet-info">
+          <p>{`account: ${account}`}</p>
+          <p>{`balance: ${balance} NEAR`}</p>
+        </div>
+      );
+    }
   };
 
   return (
@@ -35,6 +59,7 @@ function App() {
       </header>
       <div className="App-container">
         <div className="connect-wallet">{renderBtn()}</div>
+        {showWalletInfo()}
       </div>
     </div>
   );

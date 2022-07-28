@@ -1,5 +1,6 @@
 import connectionConfig from "./config";
 import { connect, WalletConnection, Contract } from "near-api-js";
+import { formatNearAmount } from "near-api-js/lib/utils/format";
 
 export async function initContract() {
   // Set a connection to the NEAR network
@@ -41,4 +42,11 @@ export function login() {
 export function logout() {
   window.walletConnection.signOut();
   window.location.reload();
+}
+
+export async function accountBalance() {
+  return formatNearAmount(
+    (await window.walletConnection.account().getAccountBalance()).total,
+    2
+  );
 }
