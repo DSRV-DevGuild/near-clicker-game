@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { get_num, reset } from "../near/utils";
 
 const Play = () => {
@@ -23,6 +23,22 @@ const Play = () => {
   const [previousScore, setPreviousScore] = useState(0);
   // setInterval이 리턴하는 timerId 값 저장
   const [timerId, setTimerId] = useState();
+
+  // time이 변하는 것을 감지하여 0이 될때 게임 종료
+  useEffect(() => {
+    if (time === 0) {
+      // 아이콘이 보이지 않도록 설정
+      setTargetPosition({ display: "none" });
+      // 게임 종료 알람창
+      alert(
+        `Game Over! Your score is ${score}. Please click TRANSACTION button to submit score.`
+      );
+      // setInterval 함수 중지
+      clearInterval(timerId);
+      setGameOver(true);
+      setGameStart(false);
+    }
+  }, [time]);
 
   // Game Start 버튼 눌렀을 때 실행
   const startGame = async (event) => {
@@ -61,6 +77,17 @@ const Play = () => {
     }
   };
 
+  // NEAR 아이콘을 클릭했을 때 실행되는 함수
+  const handleClick = () => {
+    // 현재 점수가 +1 씩 증가
+    setScore((score) => score + 1);
+    // 아이콘의 다음 위치를 랜덤으로 설정
+    setTargetPosition({
+      top: `${Math.floor(Math.random() * 80 + 10)}%`,
+      left: `${Math.floor(Math.random() * 80) + 10}%`
+    });
+  };
+
   return (
     <div className="score-board-container">
       <div className="play-container">
@@ -79,6 +106,7 @@ const Play = () => {
             alt="Target"
             id="target"
             style={{ position: "absolute", ...targetPosition }}
+            onClick={handleClick}
           />
         )}
         {loading && <div className="loading-msg">Loading...</div>}
